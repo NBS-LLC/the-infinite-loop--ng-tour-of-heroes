@@ -15,7 +15,6 @@ exports.config = {
   capabilities: {
     browserName: 'chrome'
   },
-  chromeDriver: '../node_modules/chromedriver/bin/chromedriver',
   directConnect: true,
   SELENIUM_PROMISE_MANAGER: false,
   baseUrl: 'http://localhost:4200/',
