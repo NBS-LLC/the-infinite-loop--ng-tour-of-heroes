@@ -1,7 +1,5 @@
 import { browser, element, by, ElementFinder, ElementArrayFinder } from 'protractor';
 
-const expectedH1 = 'Tour of Heroes';
-const expectedTitle = `${expectedH1}`;
 const targetHero = { id: 15, name: 'Magneta' };
 const targetHeroDashboardIndex = 2;
 const nameSuffix = 'X';
@@ -65,29 +63,6 @@ describe('Tutorial part 6', () => {
       searchResults: element.all(by.css('.search-result li'))
     };
   }
-
-  describe('Initial page', () => {
-
-    it(`has title '${expectedTitle}'`, async () => {
-      expect(await browser.getTitle()).toEqual(expectedTitle);
-    });
-
-    it(`has h1 '${expectedH1}'`, async () => {
-      await expectHeading(1, expectedH1);
-    });
-
-    const expectedViewNames = ['Dashboard', 'Heroes'];
-    it(`has views ${expectedViewNames}`, async () => {
-      const viewNames = await getPageElts().navElts.map(el => el!.getText());
-      expect(viewNames).toEqual(expectedViewNames);
-    });
-
-    it('has dashboard as the active view', async () => {
-      const page = getPageElts();
-      expect(await page.appDashboard.isPresent()).toBeTruthy();
-    });
-
-  });
 
   describe('Dashboard tests', () => {
 
