@@ -1,3 +1,5 @@
+import { ChainablePromiseElement, ChainablePromiseArray } from 'webdriverio';
+
 const expectedH1 = 'Tour of Heroes';
 const expectedTitle = `${expectedH1}`;
 const targetHero = { id: 15, name: 'Magneta' };
@@ -7,6 +9,13 @@ const newHeroName = targetHero.name + nameSuffix;
 
 class Hero {
     constructor(public id: number, public name: string) { }
+
+    // Hero from hero list <li> element.
+    static async fromLi(li: WebdriverIO.Element): Promise<Hero> {
+        const stringsFromA = await li.$$('a').map(async (e) => e.getText());
+        const strings = stringsFromA[0].split(' ');
+        return { id: +strings[0], name: strings[1] };
+    }
 
     // Hero id and name from the given detail element.
     static async fromDetail(detail: WebdriverIO.Element): Promise<Hero> {
@@ -26,9 +35,14 @@ function getPageElts() {
 
     return {
         navElts,
+
         appDashboard: $('app-root app-dashboard'),
-        appHeroes: $('app-root app-heroes'),
         topHeroes: $$('app-root app-dashboard > div a'),
+
+        appHeroesHref: navElts[1],
+        appHeroes: $('app-root app-heroes'),
+        allHeroes: $$('app-root app-heroes li'),
+
         heroDetail: $('app-root app-hero-detail > div'),
     };
 }
@@ -95,6 +109,93 @@ describe('Dashboard tests', () => {
     });
 });
 
+describe('Heroes tests', () => {
+    before(() => browser.url(''));
+
+    it('can switch to Heroes view', async () => {
+        await getPageElts().appHeroesHref.click();
+        const page = getPageElts();
+        await expect(page.appHeroes).toBePresent();
+        await expect(page.allHeroes).toBeElementsArrayOfSize(9);
+    });
+
+    it('can route to hero details', async () => {
+        await getHeroLiEltById(targetHero.id).click();
+
+        const page = getPageElts();
+        await expect(page.heroDetail).toBePresent();
+        const hero = await Hero.fromDetail(await page.heroDetail);
+        expect(hero.id).toEqual(targetHero.id);
+        expect(hero.name).toEqual(targetHero.name.toUpperCase());
+    });
+
+    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+
+    it(`shows ${newHeroName} in Heroes list`, async () => {
+        await $('button=save').click();
+        const expectedText = `${targetHero.id} ${newHeroName}`;
+        expect(await getHeroAEltById(targetHero.id).getText()).toEqual(expectedText);
+    });
+
+    it(`deletes ${newHeroName} from Heroes list`, async () => {
+        const heroesBefore = await toHeroArray(getPageElts().allHeroes);
+        const li = getHeroLiEltById(targetHero.id);
+        await li.$('button=x').click();
+
+        const page = getPageElts();
+        await expect(page.appHeroes).toBePresent();
+        expect(await page.allHeroes).toBeElementsArrayOfSize(8);
+        const heroesAfter = await toHeroArray(page.allHeroes);
+        // console.log(await Hero.fromLi(page.allHeroes[0]));
+        const expectedHeroes = heroesBefore.filter(h => h.name !== newHeroName);
+        expect(heroesAfter).toEqual(expectedHeroes);
+        // expect(page.selectedHeroSubview.isPresent()).toBeFalsy();
+    });
+
+    it(`adds back ${targetHero.name}`, async () => {
+        const addedHeroName = 'Magneta';
+        const heroesBefore = await toHeroArray(getPageElts().allHeroes);
+        const numHeroes = heroesBefore.length;
+
+        await $('input').setValue(addedHeroName);
+        await $('button=Add hero').click();
+
+        let heroesAfter;
+        await browser.waitUntil(async () => {
+            const page = getPageElts();
+            heroesAfter = await toHeroArray(page.allHeroes);
+            return heroesAfter.length == numHeroes + 1;
+        });
+
+        expect(heroesAfter.slice(0, numHeroes)).toEqual(heroesBefore);
+
+        const maxId = heroesBefore[heroesBefore.length - 1].id;
+        expect(heroesAfter[numHeroes]).toEqual({ id: maxId + 1, name: addedHeroName });
+    });
+
+    it('displays correctly styled buttons', async () => {
+        const buttons = await $$('button=x');
+
+        for (const button of buttons) {
+            // Inherited styles from styles.css
+            expect((await button.getCSSProperty('font-family')).parsed.string).toBe('arial, helvetica, sans-serif');
+            expect((await button.getCSSProperty('border')).value).toContain('none');
+            expect((await button.getCSSProperty('padding')).value).toBe('1px 10px 3px 10px');
+            expect((await button.getCSSProperty('border-radius')).value).toBe('4px');
+            // Styles defined in heroes.component.css
+            expect((await button.getCSSProperty('left')).value).toBe('210px');
+            expect((await button.getCSSProperty('top')).value).toBe('5px');
+        }
+
+        const addButton = $('button=Add hero');
+        // Inherited styles from styles.css
+        expect((await addButton.getCSSProperty('font-family')).parsed.string).toBe('arial, helvetica, sans-serif');
+        expect((await addButton.getCSSProperty('border')).value).toContain('none');
+        expect((await addButton.getCSSProperty('padding')).value).toBe('8px 24px');
+        expect((await addButton.getCSSProperty('border-radius')).value).toBe('4px');
+    });
+});
+
 async function expectHeading(hLevel: number, expectedText: string): Promise<void> {
     const hTag = `h${hLevel}`;
     const hText = await $(hTag).getText();
@@ -127,4 +228,18 @@ async function updateHeroNameInDetailView() {
 async function addToHeroName(text: string): Promise<void> {
     const input = $('input');
     await input.addValue(text);
+}
+
+function getHeroLiEltById(id: number): ChainablePromiseElement<WebdriverIO.Element> {
+    const spanForId = $('span.badge=' + id.toString());
+    return spanForId.$('../..');
+}
+
+function getHeroAEltById(id: number): ChainablePromiseElement<WebdriverIO.Element> {
+    const spanForId = $('span.badge=' + id.toString());
+    return spanForId.$('..');
+}
+
+async function toHeroArray(allHeroes: ChainablePromiseArray<WebdriverIO.ElementArray>): Promise<Hero[]> {
+    return allHeroes.map(hero => Hero.fromLi(hero!));
 }
