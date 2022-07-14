@@ -1,7 +1,6 @@
 import { browser, element, by, ElementFinder, ElementArrayFinder } from 'protractor';
 
 const targetHero = { id: 15, name: 'Magneta' };
-const targetHeroDashboardIndex = 2;
 const nameSuffix = 'X';
 const newHeroName = targetHero.name + nameSuffix;
 
@@ -63,41 +62,6 @@ describe('Tutorial part 6', () => {
       searchResults: element.all(by.css('.search-result li'))
     };
   }
-
-  describe('Dashboard tests', () => {
-
-    beforeAll(() => browser.get(''));
-
-    it('has top heroes', async () => {
-      const page = getPageElts();
-      expect(await page.topHeroes.count()).toEqual(4);
-    });
-
-    it(`selects and routes to ${targetHero.name} details`, dashboardSelectTargetHero);
-
-    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
-
-    it(`cancels and shows ${targetHero.name} in Dashboard`, async () => {
-      await element(by.buttonText('go back')).click();
-      await browser.waitForAngular(); // seems necessary to gets tests to pass for toh-pt6
-
-      const targetHeroElt = getPageElts().topHeroes.get(targetHeroDashboardIndex);
-      expect(await targetHeroElt.getText()).toEqual(targetHero.name);
-    });
-
-    it(`selects and routes to ${targetHero.name} details`, dashboardSelectTargetHero);
-
-    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
-
-    it(`saves and shows ${newHeroName} in Dashboard`, async () => {
-      await element(by.buttonText('save')).click();
-      await browser.waitForAngular(); // seems necessary to gets tests to pass for toh-pt6
-
-      const targetHeroElt = getPageElts().topHeroes.get(targetHeroDashboardIndex);
-      expect(await targetHeroElt.getText()).toEqual(newHeroName);
-    });
-
-  });
 
   describe('Heroes tests', () => {
 
@@ -225,19 +189,6 @@ describe('Tutorial part 6', () => {
     });
   });
 
-  async function dashboardSelectTargetHero() {
-    const targetHeroElt = getPageElts().topHeroes.get(targetHeroDashboardIndex);
-    expect(await targetHeroElt.getText()).toEqual(targetHero.name);
-    await targetHeroElt.click();
-    await browser.waitForAngular(); // seems necessary to gets tests to pass for toh-pt6
-
-    const page = getPageElts();
-    expect(await page.heroDetail.isPresent()).toBeTruthy('shows hero detail');
-    const hero = await Hero.fromDetail(page.heroDetail);
-    expect(hero.id).toEqual(targetHero.id);
-    expect(hero.name).toEqual(targetHero.name.toUpperCase());
-  }
-
   async function updateHeroNameInDetailView() {
     // Assumes that the current view is the hero details view.
     await addToHeroName(nameSuffix);
@@ -253,12 +204,6 @@ describe('Tutorial part 6', () => {
 async function addToHeroName(text: string): Promise<void> {
   const input = element(by.css('input'));
   await input.sendKeys(text);
-}
-
-async function expectHeading(hLevel: number, expectedText: string): Promise<void> {
-  const hTag = `h${hLevel}`;
-  const hText = await element(by.css(hTag)).getText();
-  expect(hText).toEqual(expectedText, hTag);
 }
 
 function getHeroAEltById(id: number): ElementFinder {
