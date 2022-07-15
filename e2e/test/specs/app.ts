@@ -44,6 +44,9 @@ function getPageElts() {
         allHeroes: $$('app-root app-heroes li'),
 
         heroDetail: $('app-root app-hero-detail > div'),
+
+        searchBox: $('#search-box'),
+        searchResults: $$('.search-result li')
     };
 }
 
@@ -193,6 +196,43 @@ describe('Heroes tests', () => {
         expect((await addButton.getCSSProperty('border')).value).toContain('none');
         expect((await addButton.getCSSProperty('padding')).value).toBe('8px 24px');
         expect((await addButton.getCSSProperty('border-radius')).value).toBe('4px');
+    });
+});
+
+describe('Progressive hero search', () => {
+    before(() => browser.url(''));
+
+    it(`searches for 'Ma'`, async () => {
+        await getPageElts().searchBox.setValue('Ma');
+        await browser.pause(1000);
+        await expect(getPageElts().searchResults).toBeElementsArrayOfSize(4);
+    });
+
+    it(`continues search with 'g'`, async () => {
+        await getPageElts().searchBox.addValue('g');
+        await browser.pause(1000);
+        await expect(getPageElts().searchResults).toBeElementsArrayOfSize(2);
+    });
+
+    it(`continues search with 'n' and gets ${targetHero.name}`, async () => {
+        await getPageElts().searchBox.addValue('n');
+        await browser.pause(1000);
+        const page = getPageElts();
+        await expect(page.searchResults).toBeElementsArrayOfSize(1);
+        const hero = page.searchResults[0];
+        expect(await hero.getText()).toEqual(targetHero.name);
+    });
+
+    it(`navigates to ${targetHero.name} details view`, async () => {
+        const hero = getPageElts().searchResults[0];
+        expect(await hero.getText()).toEqual(targetHero.name);
+        await hero.click();
+
+        const page = getPageElts();
+        await expect( page.heroDetail).toBePresent();
+        const hero2 = await Hero.fromDetail(await page.heroDetail);
+        expect(hero2.id).toEqual(targetHero.id);
+        expect(hero2.name).toEqual(targetHero.name.toUpperCase());
     });
 });
 
