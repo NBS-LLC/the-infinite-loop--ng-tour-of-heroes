@@ -8,8 +8,9 @@
         "start": "ng serve",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
-        "test": "ng test",
-        "e2e": "ng e2e"
+        "test": "ng test --no-watch --code-coverage",
+        "e2e": "ng e2e && npx nyc report --reporter=json",
+        "coverage": "npx nyc report -t coverage/ --reporter=html --reporter=text-summary"
     },
     "private": true,
     "dependencies": {
@@ -27,9 +28,11 @@
         "zone.js": "~0.11.4"
     },
     "devDependencies": {
+        "@angular-builders/custom-webpack": "^14.0.1",
         "@angular-devkit/build-angular": "^14.2.3",
         "@angular/cli": "^14.2.3",
         "@angular/compiler-cli": "^14.2.3",
+        "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
         "@types/jasmine": "~4.0.0",
         "@types/node": "^16.11.35",
         "@wdio/cli": "^7.20.5",
@@ -47,8 +50,10 @@
         "karma-coverage": "~2.2.0",
         "karma-jasmine": "~5.0.0",
         "karma-jasmine-html-reporter": "~2.0.0",
+        "nyc": "^15.1.0",
         "ts-node": "~10.8.0",
         "typescript": "~4.7.2",
-        "wdio-chromedriver-service": "^7.3.2"
+        "wdio-chromedriver-service": "^7.3.2",
+        "wdio-coverage-service": "^1.0.2"
     }
 }
