@@ -1,11 +1,8 @@
 import { ChainablePromiseElement, ChainablePromiseArray } from 'webdriverio';
 
-const targetHero = { id: 15, name: 'Magneta' };
-const targetHeroDashboardIndex = 2;
-const nameSuffix = 'X';
-const newHeroName = targetHero.name + nameSuffix;
-
 class Hero {
+    static readonly TEST_TARGET: Hero = { id: 15, name: 'Magneta' };
+
     constructor(public id: number, public name: string) { }
 
     // Hero from hero list <li> element.
@@ -27,6 +24,10 @@ class Hero {
         };
     }
 }
+
+const targetHeroDashboardIndex = 2;
+const nameSuffix = 'X';
+const newHeroName = Hero.TEST_TARGET.name + nameSuffix;
 
 function getPageElts() {
     const navElts = $$('app-root nav a');
@@ -81,11 +82,11 @@ describe('Dashboard tests', () => {
         await expect(page.topHeroes).toBeElementsArrayOfSize(4);
     });
 
-    it(`selects and routes to ${targetHero.name} details`, dashboardSelectTargetHero);
+    it(`selects and routes to ${Hero.TEST_TARGET.name} details`, dashboardSelectTargetHero);
 
     it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
 
-    it(`cancels and shows ${targetHero.name} in Dashboard`, async () => {
+    it(`cancels and shows ${Hero.TEST_TARGET.name} in Dashboard`, async () => {
         await (await $('button=go back')).click();
 
         await browser.waitUntil(async () => {
@@ -93,10 +94,10 @@ describe('Dashboard tests', () => {
         });
 
         const targetHeroElt = (await getPageElts().topHeroes)[targetHeroDashboardIndex];
-        expect(await targetHeroElt.getText()).toEqual(targetHero.name);
+        expect(await targetHeroElt.getText()).toEqual(Hero.TEST_TARGET.name);
     });
 
-    it(`selects and routes to ${targetHero.name} details`, dashboardSelectTargetHero);
+    it(`selects and routes to ${Hero.TEST_TARGET.name} details`, dashboardSelectTargetHero);
 
     it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
 
@@ -123,26 +124,26 @@ describe('Heroes tests', () => {
     });
 
     it('can route to hero details', async () => {
-        await getHeroLiEltById(targetHero.id).click();
+        await getHeroLiEltById(Hero.TEST_TARGET.id).click();
 
         const page = getPageElts();
         await expect(page.heroDetail).toBePresent();
         const hero = await Hero.fromDetail(await page.heroDetail);
-        expect(hero.id).toEqual(targetHero.id);
-        expect(hero.name).toEqual(targetHero.name.toUpperCase());
+        expect(hero.id).toEqual(Hero.TEST_TARGET.id);
+        expect(hero.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
     });
 
     it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
 
     it(`shows ${newHeroName} in Heroes list`, async () => {
         await $('button=save').click();
-        const expectedText = `${targetHero.id} ${newHeroName}`;
-        expect(await getHeroAEltById(targetHero.id).getText()).toEqual(expectedText);
+        const expectedText = `${Hero.TEST_TARGET.id} ${newHeroName}`;
+        expect(await getHeroAEltById(Hero.TEST_TARGET.id).getText()).toEqual(expectedText);
     });
 
     it(`deletes ${newHeroName} from Heroes list`, async () => {
         const heroesBefore = await toHeroArray(getPageElts().allHeroes);
-        const li = getHeroLiEltById(targetHero.id);
+        const li = getHeroLiEltById(Hero.TEST_TARGET.id);
         await li.$('button=x').click();
 
         const page = getPageElts();
@@ -155,7 +156,7 @@ describe('Heroes tests', () => {
         // expect(page.selectedHeroSubview.isPresent()).toBeFalsy();
     });
 
-    it(`adds back ${targetHero.name}`, async () => {
+    it(`adds back ${Hero.TEST_TARGET.name}`, async () => {
         const addedHeroName = 'Magneta';
         const heroesBefore = await toHeroArray(getPageElts().allHeroes);
         const numHeroes = heroesBefore.length;
@@ -214,25 +215,25 @@ describe('Progressive hero search', () => {
         await expect(getPageElts().searchResults).toBeElementsArrayOfSize(2);
     });
 
-    it(`continues search with 'n' and gets ${targetHero.name}`, async () => {
+    it(`continues search with 'n' and gets ${Hero.TEST_TARGET.name}`, async () => {
         await getPageElts().searchBox.addValue('n');
         await browser.pause(1000);
         const page = getPageElts();
         await expect(page.searchResults).toBeElementsArrayOfSize(1);
         const hero = page.searchResults[0];
-        expect(await hero.getText()).toEqual(targetHero.name);
+        expect(await hero.getText()).toEqual(Hero.TEST_TARGET.name);
     });
 
-    it(`navigates to ${targetHero.name} details view`, async () => {
+    it(`navigates to ${Hero.TEST_TARGET.name} details view`, async () => {
         const hero = getPageElts().searchResults[0];
-        expect(await hero.getText()).toEqual(targetHero.name);
+        expect(await hero.getText()).toEqual(Hero.TEST_TARGET.name);
         await hero.click();
 
         const page = getPageElts();
-        await expect( page.heroDetail).toBePresent();
+        await expect(page.heroDetail).toBePresent();
         const hero2 = await Hero.fromDetail(await page.heroDetail);
-        expect(hero2.id).toEqual(targetHero.id);
-        expect(hero2.name).toEqual(targetHero.name.toUpperCase());
+        expect(hero2.id).toEqual(Hero.TEST_TARGET.id);
+        expect(hero2.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
     });
 });
 
@@ -244,15 +245,15 @@ async function expectHeading(hLevel: number, expectedText: string): Promise<void
 
 async function dashboardSelectTargetHero() {
     const targetHeroElt = (await getPageElts().topHeroes)[targetHeroDashboardIndex];
-    expect(await targetHeroElt.getText()).toEqual(targetHero.name);
+    expect(await targetHeroElt.getText()).toEqual(Hero.TEST_TARGET.name);
     await targetHeroElt.click();
 
     const page = getPageElts();
     await expect(page.heroDetail).toBePresent();
 
     const hero = await Hero.fromDetail(await page.heroDetail);
-    expect(hero.id).toEqual(targetHero.id);
-    expect(hero.name).toEqual(targetHero.name.toUpperCase());
+    expect(hero.id).toEqual(Hero.TEST_TARGET.id);
+    expect(hero.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
 }
 
 async function updateHeroNameInDetailView() {
@@ -261,7 +262,7 @@ async function updateHeroNameInDetailView() {
 
     const page = getPageElts();
     const hero = await Hero.fromDetail(await page.heroDetail);
-    expect(hero.id).toEqual(targetHero.id);
+    expect(hero.id).toEqual(Hero.TEST_TARGET.id);
     expect(hero.name).toEqual(newHeroName.toUpperCase());
 }
 
