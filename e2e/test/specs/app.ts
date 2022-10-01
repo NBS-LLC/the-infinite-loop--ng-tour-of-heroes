@@ -1,7 +1,5 @@
 import { ChainablePromiseElement, ChainablePromiseArray } from 'webdriverio';
 
-const expectedH1 = 'Tour of Heroes';
-const expectedTitle = `${expectedH1}`;
 const targetHero = { id: 15, name: 'Magneta' };
 const targetHeroDashboardIndex = 2;
 const nameSuffix = 'X';
@@ -53,10 +51,12 @@ function getPageElts() {
 describe('Initial page', () => {
     before(() => browser.url(''));
 
+    const expectedTitle = 'Tour of Heroes';
     it(`has title '${expectedTitle}'`, async () => {
         expect(await browser.getTitle()).toEqual(expectedTitle);
     });
 
+    const expectedH1 = 'Tour of Heroes';
     it(`has h1 '${expectedH1}'`, async () => {
         await expectHeading(1, expectedH1);
     });
