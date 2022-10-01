@@ -26,8 +26,6 @@ class Hero {
     }
 }
 
-const targetHeroDashboardIndex = 2;
-
 function getPageElts() {
     const navElts = $$('app-root nav a');
 
@@ -92,8 +90,7 @@ describe('Dashboard tests', () => {
             return await getPageElts().topHeroes.length > 0;
         });
 
-        const targetHeroElt = (await getPageElts().topHeroes)[targetHeroDashboardIndex];
-        expect(await targetHeroElt.getText()).toEqual(Hero.TEST_TARGET.name);
+        await expectDashboardToHaveHero(Hero.TEST_TARGET);
     });
 
     it(`selects and routes to ${Hero.TEST_TARGET.name} details`, dashboardSelectTargetHero);
@@ -107,8 +104,7 @@ describe('Dashboard tests', () => {
             return await getPageElts().topHeroes.length > 0;
         });
 
-        const targetHeroElt = (await getPageElts().topHeroes)[targetHeroDashboardIndex];
-        expect(await targetHeroElt.getText()).toEqual(Hero.TEST_RENAME.name);
+        await expectDashboardToHaveHero(Hero.TEST_RENAME);
     });
 });
 
@@ -242,8 +238,40 @@ async function expectHeading(hLevel: number, expectedText: string): Promise<void
     expect(hText).toEqual(expectedText);
 }
 
+/**
+ * Try to get a hero element from the dashboard.
+ * 
+ * @param name The hero's name.
+ * @throws Error if the hero element cannot be found.
+ */
+async function getDashboardHeroByName(name: string) {
+    let hero: WebdriverIO.Element;
+
+    await browser.waitUntil(async () => {
+        const topHeroes = await getPageElts().topHeroes;
+        for (const topHero of topHeroes) {
+            if (await topHero.getText() == name) {
+                hero = topHero;
+                return true;
+            }
+        }
+        return false;
+    }, { timeoutMsg: `hero (${name}) was not found on the dashboard` });
+
+    return hero;
+}
+
+/**
+ * Expect the dashboard view to have a specific Hero.
+ * 
+ * @param hero The hero that is expected on the dashboard.
+ */
+async function expectDashboardToHaveHero(hero: Hero) {
+    await getDashboardHeroByName(hero.name);
+}
+
 async function dashboardSelectTargetHero() {
-    const targetHeroElt = (await getPageElts().topHeroes)[targetHeroDashboardIndex];
+    const targetHeroElt = await getDashboardHeroByName(Hero.TEST_TARGET.name);
     expect(await targetHeroElt.getText()).toEqual(Hero.TEST_TARGET.name);
     await targetHeroElt.click();
 
@@ -265,6 +293,11 @@ async function updateHeroNameInDetailView() {
     expect(hero.name).toEqual(Hero.TEST_RENAME.name.toUpperCase());
 }
 
+/**
+ * Rename an existing hero.
+ * 
+ * @param name The new name of the Hero.
+ */
 async function renameHero(name: string): Promise<void> {
     const input = $('input');
     await input.setValue(name);
