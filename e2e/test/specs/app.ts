@@ -2,6 +2,7 @@ import { ChainablePromiseElement, ChainablePromiseArray } from 'webdriverio';
 
 class Hero {
     static readonly TEST_TARGET: Hero = { id: 15, name: 'Magneta' };
+    static readonly TEST_RENAME: Hero = { id: 15, name: 'MagnetaX' }
 
     constructor(public id: number, public name: string) { }
 
@@ -26,8 +27,6 @@ class Hero {
 }
 
 const targetHeroDashboardIndex = 2;
-const nameSuffix = 'X';
-const newHeroName = Hero.TEST_TARGET.name + nameSuffix;
 
 function getPageElts() {
     const navElts = $$('app-root nav a');
@@ -84,7 +83,7 @@ describe('Dashboard tests', () => {
 
     it(`selects and routes to ${Hero.TEST_TARGET.name} details`, dashboardSelectTargetHero);
 
-    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+    it(`updates hero name (${Hero.TEST_RENAME.name}) in details view`, updateHeroNameInDetailView);
 
     it(`cancels and shows ${Hero.TEST_TARGET.name} in Dashboard`, async () => {
         await (await $('button=go back')).click();
@@ -99,9 +98,9 @@ describe('Dashboard tests', () => {
 
     it(`selects and routes to ${Hero.TEST_TARGET.name} details`, dashboardSelectTargetHero);
 
-    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+    it(`updates hero name (${Hero.TEST_RENAME.name}) in details view`, updateHeroNameInDetailView);
 
-    it(`saves and shows ${newHeroName} in Dashboard`, async () => {
+    it(`saves and shows ${Hero.TEST_RENAME.name} in Dashboard`, async () => {
         await (await $('button=save')).click();
 
         await browser.waitUntil(async () => {
@@ -109,7 +108,7 @@ describe('Dashboard tests', () => {
         });
 
         const targetHeroElt = (await getPageElts().topHeroes)[targetHeroDashboardIndex];
-        expect(await targetHeroElt.getText()).toEqual(newHeroName);
+        expect(await targetHeroElt.getText()).toEqual(Hero.TEST_RENAME.name);
     });
 });
 
@@ -133,15 +132,15 @@ describe('Heroes tests', () => {
         expect(hero.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
     });
 
-    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+    it(`updates hero name (${Hero.TEST_RENAME.name}) in details view`, updateHeroNameInDetailView);
 
-    it(`shows ${newHeroName} in Heroes list`, async () => {
+    it(`shows ${Hero.TEST_RENAME.name} in Heroes list`, async () => {
         await $('button=save').click();
-        const expectedText = `${Hero.TEST_TARGET.id} ${newHeroName}`;
+        const expectedText = `${Hero.TEST_TARGET.id} ${Hero.TEST_RENAME.name}`;
         expect(await getHeroAEltById(Hero.TEST_TARGET.id).getText()).toEqual(expectedText);
     });
 
-    it(`deletes ${newHeroName} from Heroes list`, async () => {
+    it(`deletes ${Hero.TEST_RENAME.name} from Heroes list`, async () => {
         const heroesBefore = await toHeroArray(getPageElts().allHeroes);
         const li = getHeroLiEltById(Hero.TEST_TARGET.id);
         await li.$('button=x').click();
@@ -151,7 +150,7 @@ describe('Heroes tests', () => {
         expect(await page.allHeroes).toBeElementsArrayOfSize(8);
         const heroesAfter = await toHeroArray(page.allHeroes);
         // console.log(await Hero.fromLi(page.allHeroes[0]));
-        const expectedHeroes = heroesBefore.filter(h => h.name !== newHeroName);
+        const expectedHeroes = heroesBefore.filter(h => h.name !== Hero.TEST_RENAME.name);
         expect(heroesAfter).toEqual(expectedHeroes);
         // expect(page.selectedHeroSubview.isPresent()).toBeFalsy();
     });
@@ -258,17 +257,17 @@ async function dashboardSelectTargetHero() {
 
 async function updateHeroNameInDetailView() {
     // Assumes that the current view is the hero details view.
-    await addToHeroName(nameSuffix);
+    await renameHero(Hero.TEST_RENAME.name);
 
     const page = getPageElts();
     const hero = await Hero.fromDetail(await page.heroDetail);
-    expect(hero.id).toEqual(Hero.TEST_TARGET.id);
-    expect(hero.name).toEqual(newHeroName.toUpperCase());
+    expect(hero.id).toEqual(Hero.TEST_RENAME.id);
+    expect(hero.name).toEqual(Hero.TEST_RENAME.name.toUpperCase());
 }
 
-async function addToHeroName(text: string): Promise<void> {
+async function renameHero(name: string): Promise<void> {
     const input = $('input');
-    await input.addValue(text);
+    await input.setValue(name);
 }
 
 function getHeroLiEltById(id: number): ChainablePromiseElement<WebdriverIO.Element> {
