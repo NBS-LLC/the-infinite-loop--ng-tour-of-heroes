@@ -4,17 +4,30 @@ export class Hero {
 
     constructor(public id: number, public name: string) { }
 
-    // Hero from hero list <li> element.
+    /**
+     * Create a Hero from a list <li> element.
+     * @param li The list HTML element.
+     */
     static async fromLi(li: WebdriverIO.Element): Promise<Hero> {
-        const id = await li.$('[data-testid="id"]').getText();
-        const name = await li.$('[data-testid="name"]').getText();
-        return { id: +id, name: name };
+        return this.fromHeroElem(li);
     }
 
-    // Hero id and name from the given detail element.
+    /**
+     * Create a Hero from a "detail" page element.
+     * @param detail The "detail" page element.
+     */
     static async fromDetail(detail: WebdriverIO.Element): Promise<Hero> {
-        const id = await detail.$('[data-testid="id"]').getText();
-        const name = await detail.$('[data-testid="name"]').getText();
+        return this.fromHeroElem(detail);
+    }
+
+    /**
+     * Create a Hero from a "hero" page element.
+     * @param elem An HTML element that contains "id" and "name" data-testid attributes.
+     * @returns 
+     */
+    private static async fromHeroElem(elem: WebdriverIO.Element) {
+        const id = await elem.$('[data-testid="id"]').getText();
+        const name = await elem.$('[data-testid="name"]').getText();
         return { id: +id, name: name };
     }
 }
