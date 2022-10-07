@@ -107,7 +107,7 @@ describe('Heroes tests', () => {
 
     it(`shows ${Hero.TEST_RENAME.name} in Heroes list`, async () => {
         await $('button=save').click();
-        const expectedText = `${Hero.TEST_TARGET.id} ${Hero.TEST_RENAME.name}`;
+        const expectedText = `${Hero.TEST_TARGET.id}${Hero.TEST_RENAME.name}`;
         expect(await getHeroAEltById(Hero.TEST_TARGET.id).getText()).toEqual(expectedText);
     });
 

@@ -6,9 +6,9 @@ export class Hero {
 
     // Hero from hero list <li> element.
     static async fromLi(li: WebdriverIO.Element): Promise<Hero> {
-        const stringsFromA = await li.$$('a').map(async (e) => e.getText());
-        const strings = stringsFromA[0].split(' ');
-        return { id: +strings[0], name: strings[1] };
+        const id = await li.$('[data-testid="id"]').getText();
+        const name = await li.$('[data-testid="name"]').getText();
+        return { id: +id, name: name };
     }
 
     // Hero id and name from the given detail element.
