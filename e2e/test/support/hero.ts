@@ -13,13 +13,8 @@ export class Hero {
 
     // Hero id and name from the given detail element.
     static async fromDetail(detail: WebdriverIO.Element): Promise<Hero> {
-        // Get hero id from the first <div>
-        const id = await (await detail.$$('div'))[0].getText();
-        // Get name from the h2
-        const name = await detail.$('h2').getText();
-        return {
-            id: +id.slice(id.indexOf(' ') + 1),
-            name: name.substring(0, name.lastIndexOf(' '))
-        };
+        const id = await detail.$('[data-testid="id"]').getText();
+        const name = await detail.$('[data-testid="name"]').getText();
+        return { id: +id, name: name };
     }
 }
