@@ -9,7 +9,7 @@ export class Hero {
      * @param li The list HTML element.
      */
     static async fromLi(li: WebdriverIO.Element): Promise<Hero> {
-        return this.fromHeroElem(li);
+        return await this.fromHeroElem(li);
     }
 
     /**
@@ -17,15 +17,14 @@ export class Hero {
      * @param detail The "detail" page element.
      */
     static async fromDetail(detail: WebdriverIO.Element): Promise<Hero> {
-        return this.fromHeroElem(detail);
+        return await this.fromHeroElem(detail);
     }
 
     /**
      * Create a Hero from a "hero" page element.
      * @param elem An HTML element that contains "id" and "name" data-testid attributes.
-     * @returns 
      */
-    private static async fromHeroElem(elem: WebdriverIO.Element) {
+    private static async fromHeroElem(elem: WebdriverIO.Element): Promise<Hero> {
         const id = await elem.$('[data-testid="id"]').getText();
         const name = await elem.$('[data-testid="name"]').getText();
         return { id: +id, name: name };
