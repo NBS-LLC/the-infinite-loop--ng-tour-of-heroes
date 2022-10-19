@@ -3,7 +3,6 @@ class NavigationComponent {
     get heroesLink() { return $(byTestId('navlink-heroes')); }
 
     async goToHeroesPage() {
-        browser.waitUntil
         await this.heroesLink.click();
     }
 }
