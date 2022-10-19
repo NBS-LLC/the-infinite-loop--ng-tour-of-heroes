@@ -1,8 +1,9 @@
 class NavigationComponent {
-    get allLinks() { return $$('[data-testid*="navlink-"]') }
-    get heroesLink() { return $('[data-testid="navlink-heroes"]'); }
+    get allLinks() { return $$(byTestId('navlink-', { partial: true })); }
+    get heroesLink() { return $(byTestId('navlink-heroes')); }
 
     async goToHeroesPage() {
+        browser.waitUntil
         await this.heroesLink.click();
     }
 }
