@@ -1,12 +1,10 @@
 import { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
+import { dashboardPage } from '../pages/dashboard-page';
 import { navigationComponent } from '../pages/navigation-component';
 import { Hero } from '../support/hero';
 
 function getPageElts() {
     return {
-        appDashboard: $('app-root app-dashboard'),
-        topHeroes: $$('app-root app-dashboard > div a'),
-
         appHeroes: $('app-root app-heroes'),
         allHeroes: $$('app-root app-heroes li'),
 
@@ -40,8 +38,7 @@ describe('Initial page', () => {
     });
 
     it('has dashboard as the active view', async () => {
-        const page = getPageElts();
-        await expect(page.appDashboard).toBePresent();
+        await expect(dashboardPage.element).toBeDisplayed();
     });
 });
 
@@ -49,8 +46,7 @@ describe('Dashboard tests', () => {
     before(() => browser.url(''));
 
     it('has top heroes', async () => {
-        const page = getPageElts();
-        await expect(page.topHeroes).toBeElementsArrayOfSize(4);
+        await expect(dashboardPage.topHeroes).toBeElementsArrayOfSize(4);
     });
 
     it(`selects and routes to ${Hero.TEST_TARGET.name} details`, dashboardSelectTargetHero);
@@ -59,11 +55,7 @@ describe('Dashboard tests', () => {
 
     it(`cancels and shows ${Hero.TEST_TARGET.name} in Dashboard`, async () => {
         await (await $('button=go back')).click();
-
-        await browser.waitUntil(async () => {
-            return await getPageElts().topHeroes.length > 0;
-        });
-
+        await expect(dashboardPage.topHeroes).toBeElementsArrayOfSize({ gte: 1 });
         await expectDashboardToHaveHero(Hero.TEST_TARGET);
     });
 
@@ -73,11 +65,7 @@ describe('Dashboard tests', () => {
 
     it(`saves and shows ${Hero.TEST_RENAME.name} in Dashboard`, async () => {
         await (await $('button=save')).click();
-
-        await browser.waitUntil(async () => {
-            return await getPageElts().topHeroes.length > 0;
-        });
-
+        await expect(dashboardPage.topHeroes).toBeElementsArrayOfSize({ gte: 1 });
         await expectDashboardToHaveHero(Hero.TEST_RENAME);
     });
 });
@@ -222,7 +210,7 @@ async function getDashboardHeroByName(name: string) {
     let hero: WebdriverIO.Element;
 
     await browser.waitUntil(async () => {
-        const topHeroes = await getPageElts().topHeroes;
+        const topHeroes = await dashboardPage.topHeroes;
         for (const topHero of topHeroes) {
             if (await topHero.getText() == name) {
                 hero = topHero;
