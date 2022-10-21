@@ -1,16 +1,10 @@
 import { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import { dashboardComponent } from '../pages/dashboard-component';
 import { heroDetailComponent } from '../pages/hero-detail-component';
+import { heroSearchComponent } from '../pages/hero-search-component';
 import { heroesComponent } from '../pages/heroes-component';
 import { navigationComponent } from '../pages/navigation-component';
 import { Hero } from '../support/hero';
-
-function getPageElts() {
-    return {
-        searchBox: $('#search-box'),
-        searchResults: $$('.search-result li')
-    };
-}
 
 describe('Initial page', () => {
     before(() => browser.url(''));
@@ -153,29 +147,28 @@ describe('Progressive hero search', () => {
     before(() => browser.url(''));
 
     it(`searches for 'Ma'`, async () => {
-        await getPageElts().searchBox.setValue('Ma');
+        await heroSearchComponent.query.setValue('Ma');
         await browser.pause(1000);
-        await expect(getPageElts().searchResults).toBeElementsArrayOfSize(4);
+        await expect(heroSearchComponent.results).toBeElementsArrayOfSize(4);
     });
 
     it(`continues search with 'g'`, async () => {
-        await getPageElts().searchBox.addValue('g');
+        await heroSearchComponent.query.addValue('g');
         await browser.pause(1000);
-        await expect(getPageElts().searchResults).toBeElementsArrayOfSize(2);
+        await expect(heroSearchComponent.results).toBeElementsArrayOfSize(2);
     });
 
     it(`continues search with 'n' and gets ${Hero.TEST_TARGET.name}`, async () => {
-        await getPageElts().searchBox.addValue('n');
+        await heroSearchComponent.query.addValue('n');
         await browser.pause(1000);
-        const page = getPageElts();
-        await expect(page.searchResults).toBeElementsArrayOfSize(1);
-        const hero = page.searchResults[0];
-        expect(await hero.getText()).toEqual(Hero.TEST_TARGET.name);
+        await expect(heroSearchComponent.results).toBeElementsArrayOfSize(1);
+        const hero = heroSearchComponent.results[0];
+        await expect(hero).toHaveText(Hero.TEST_TARGET.name);
     });
 
     it(`navigates to ${Hero.TEST_TARGET.name} details view`, async () => {
-        const hero = getPageElts().searchResults[0];
-        expect(await hero.getText()).toEqual(Hero.TEST_TARGET.name);
+        const hero = heroSearchComponent.results[0];
+        await expect(hero).toHaveText(Hero.TEST_TARGET.name);
         await hero.click();
 
         await expect(heroDetailComponent.element).toBeDisplayed();

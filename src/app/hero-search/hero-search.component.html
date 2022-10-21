@@ -1,9 +1,9 @@
-<div id="search-component">
+<div id="search-component" data-testid="hero-search">
   <label for="search-box">Hero Search</label>
-  <input #searchBox id="search-box" (input)="search(searchBox.value)" />
+  <input #searchBox id="search-box" (input)="search(searchBox.value)" data-testid="query" />
 
   <ul class="search-result">
-    <li *ngFor="let hero of heroes$ | async" >
+    <li *ngFor="let hero of heroes$ | async" data-testid="result-item">
       <a routerLink="/detail/{{hero.id}}">
         {{hero.name}}
       </a>
