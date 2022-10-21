@@ -1,13 +1,11 @@
 import { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import { dashboardComponent } from '../pages/dashboard-component';
+import { heroesComponent } from '../pages/heroes-component';
 import { navigationComponent } from '../pages/navigation-component';
 import { Hero } from '../support/hero';
 
 function getPageElts() {
     return {
-        appHeroes: $('app-root app-heroes'),
-        allHeroes: $$('app-root app-heroes li'),
-
         heroDetail: $('app-root app-hero-detail > div'),
 
         searchBox: $('#search-box'),
@@ -74,9 +72,8 @@ describe('Heroes tests', () => {
 
     it('can switch to Heroes view', async () => {
         await navigationComponent.goToHeroesPage();
-        const page = getPageElts();
-        await expect(page.appHeroes).toBePresent();
-        await expect(page.allHeroes).toBeElementsArrayOfSize(9);
+        await expect(heroesComponent.element).toBeDisplayed();
+        await expect(heroesComponent.allHeroes).toBeElementsArrayOfSize(9);
     });
 
     it('can route to hero details', async () => {
@@ -98,14 +95,13 @@ describe('Heroes tests', () => {
     });
 
     it(`deletes ${Hero.TEST_RENAME.name} from Heroes list`, async () => {
-        const heroesBefore = await toHeroArray(getPageElts().allHeroes);
+        const heroesBefore = await toHeroArray(heroesComponent.allHeroes);
         const li = getHeroLiEltById(Hero.TEST_TARGET.id);
         await li.$('button=x').click();
 
-        const page = getPageElts();
-        await expect(page.appHeroes).toBePresent();
-        expect(await page.allHeroes).toBeElementsArrayOfSize(8);
-        const heroesAfter = await toHeroArray(page.allHeroes);
+        await expect(heroesComponent.element).toBeDisplayed();
+        await expect(heroesComponent.allHeroes).toBeElementsArrayOfSize(8);
+        const heroesAfter = await toHeroArray(heroesComponent.allHeroes);
         // console.log(await Hero.fromLi(page.allHeroes[0]));
         const expectedHeroes = heroesBefore.filter(h => h.name !== Hero.TEST_RENAME.name);
         expect(heroesAfter).toEqual(expectedHeroes);
@@ -114,7 +110,7 @@ describe('Heroes tests', () => {
 
     it(`adds back ${Hero.TEST_TARGET.name}`, async () => {
         const addedHeroName = 'Magneta';
-        const heroesBefore = await toHeroArray(getPageElts().allHeroes);
+        const heroesBefore = await toHeroArray(heroesComponent.allHeroes);
         const numHeroes = heroesBefore.length;
 
         await $('input').setValue(addedHeroName);
@@ -122,8 +118,7 @@ describe('Heroes tests', () => {
 
         let heroesAfter;
         await browser.waitUntil(async () => {
-            const page = getPageElts();
-            heroesAfter = await toHeroArray(page.allHeroes);
+            heroesAfter = await toHeroArray(heroesComponent.allHeroes);
             return heroesAfter.length == numHeroes + 1;
         });
 

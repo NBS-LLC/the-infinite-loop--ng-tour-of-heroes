@@ -11,7 +11,7 @@
 </div>
 
 <ul class="heroes">
-  <li *ngFor="let hero of heroes">
+  <li *ngFor="let hero of heroes" [attr.data-testid]="'heroes-item-' + hero.name | lowercase">
     <a routerLink="/detail/{{hero.id}}">
       <span class="badge" data-testid="id">{{hero.id}}</span> <span data-testid="name">{{hero.name}}</span>
     </a>
