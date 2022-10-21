@@ -1,13 +1,12 @@
 import { ChainablePromiseArray, ChainablePromiseElement } from 'webdriverio';
 import { dashboardComponent } from '../pages/dashboard-component';
+import { heroDetailComponent } from '../pages/hero-detail-component';
 import { heroesComponent } from '../pages/heroes-component';
 import { navigationComponent } from '../pages/navigation-component';
 import { Hero } from '../support/hero';
 
 function getPageElts() {
     return {
-        heroDetail: $('app-root app-hero-detail > div'),
-
         searchBox: $('#search-box'),
         searchResults: $$('.search-result li')
     };
@@ -79,9 +78,8 @@ describe('Heroes tests', () => {
     it('can route to hero details', async () => {
         await getHeroLiEltById(Hero.TEST_TARGET.id).click();
 
-        const page = getPageElts();
-        await expect(page.heroDetail).toBePresent();
-        const hero = await Hero.fromDetail(await page.heroDetail);
+        await expect(heroDetailComponent.element).toBeDisplayed();
+        const hero = await Hero.fromDetails(await heroDetailComponent.details);
         expect(hero.id).toEqual(Hero.TEST_TARGET.id);
         expect(hero.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
     });
@@ -180,9 +178,8 @@ describe('Progressive hero search', () => {
         expect(await hero.getText()).toEqual(Hero.TEST_TARGET.name);
         await hero.click();
 
-        const page = getPageElts();
-        await expect(page.heroDetail).toBePresent();
-        const hero2 = await Hero.fromDetail(await page.heroDetail);
+        await expect(heroDetailComponent.element).toBeDisplayed();
+        const hero2 = await Hero.fromDetails(await heroDetailComponent.details);
         expect(hero2.id).toEqual(Hero.TEST_TARGET.id);
         expect(hero2.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
     });
@@ -231,10 +228,8 @@ async function dashboardSelectTargetHero() {
     expect(await targetHeroElt.getText()).toEqual(Hero.TEST_TARGET.name);
     await targetHeroElt.click();
 
-    const page = getPageElts();
-    await expect(page.heroDetail).toBePresent();
-
-    const hero = await Hero.fromDetail(await page.heroDetail);
+    await expect(heroDetailComponent.element).toBeDisplayed();
+    const hero = await Hero.fromDetails(await heroDetailComponent.details);
     expect(hero.id).toEqual(Hero.TEST_TARGET.id);
     expect(hero.name).toEqual(Hero.TEST_TARGET.name.toUpperCase());
 }
@@ -243,8 +238,7 @@ async function updateHeroNameInDetailView() {
     // Assumes that the current view is the hero details view.
     await renameHero(Hero.TEST_RENAME.name);
 
-    const page = getPageElts();
-    const hero = await Hero.fromDetail(await page.heroDetail);
+    const hero = await Hero.fromDetails(await heroDetailComponent.details);
     expect(hero.id).toEqual(Hero.TEST_RENAME.id);
     expect(hero.name).toEqual(Hero.TEST_RENAME.name.toUpperCase());
 }

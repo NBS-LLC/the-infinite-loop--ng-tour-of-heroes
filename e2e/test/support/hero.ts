@@ -13,10 +13,10 @@ export class Hero {
     }
 
     /**
-     * Create a Hero from a "detail" page element.
-     * @param detail The "detail" page element.
+     * Create a Hero from a "details" page element.
+     * @param detail The "details" page element.
      */
-    static async fromDetail(detail: WebdriverIO.Element): Promise<Hero> {
+    static async fromDetails(detail: WebdriverIO.Element): Promise<Hero> {
         return await this.fromHeroElem(detail);
     }
 
