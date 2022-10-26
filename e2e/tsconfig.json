@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-        "moduleResolution": "node",
+        "module": "CommonJS",
         "types": [
             "node",
             "webdriverio/async",
             "@wdio/mocha-framework",
-            "expect-webdriverio"
         ],
         "target": "es2019"
     }
