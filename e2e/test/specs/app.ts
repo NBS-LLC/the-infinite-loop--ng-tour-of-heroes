@@ -17,7 +17,7 @@ function getPageElts() {
         heroDetail: $('app-root app-hero-detail > div'),
 
         searchBox: $('#search-box'),
-        searchResults: browser.$$('testid=search-result-item')
+        searchResults: $$('testid=search-result-item')
     };
 }
 
