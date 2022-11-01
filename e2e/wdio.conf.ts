@@ -228,6 +228,7 @@ export const config: Options.Testrunner = {
         const customCommands = await import('./custom-commands');
         customCommands.addCustomCommands();
         customCommands.overwriteCommands();
+        customCommands.addGlobalCommands();
     },
     /**
      * Runs before a WebdriverIO command gets executed.
