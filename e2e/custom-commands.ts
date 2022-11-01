@@ -50,6 +50,26 @@ export function addCustomCommands(): void {
     }, true);
 }
 
+export function overwriteCommands(): void {
+    const byTestId = function (originalFunc: Function, selector: string) {
+        const isTestIdSelector = typeof selector === 'string' && selector.startsWith('testid=');
+
+        if (isTestIdSelector) {
+            const testId = selector.split('testid=')[1];
+            const testIdSelector = `[data-testid="${testId}"]`;
+            console.debug('Test Id Selector: ' + testIdSelector);
+            return originalFunc(testIdSelector);
+        }
+
+        return originalFunc(selector);
+    };
+
+    browser.overwriteCommand('$', byTestId);
+    browser.overwriteCommand('$', byTestId, true);
+    browser.overwriteCommand('$$', byTestId);
+    browser.overwriteCommand('$$', byTestId, true);
+}
+
 function getTestIdSelector(testId: string): string {
     return `[data-testid="${testId}"]`;
 }

@@ -225,7 +225,9 @@ export const config: Options.Testrunner = {
      * @param {Object}         browser      instance of created browser/device session
      */
     before: async function (capabilities, specs) {
-        (await import('./custom-commands')).addCustomCommands();
+        const customCommands = await import('./custom-commands');
+        customCommands.addCustomCommands();
+        customCommands.overwriteCommands();
     },
     /**
      * Runs before a WebdriverIO command gets executed.

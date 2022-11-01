@@ -25,8 +25,10 @@ export class Hero {
      * @param elem An HTML element that contains "id" and "name" data-testid attributes.
      */
     private static async fromHeroElem(elem: WebdriverIO.Element): Promise<Hero> {
-        const id = await elem.testId$('id').getText();
-        const name = await elem.testId$('name').getText();
+        // const id = await elem.testId$('id').getText();
+        // const name = await elem.testId$('name').getText();
+        const id = await elem.$('testid=id').getText();
+        const name = await elem.$('testid=name').getText();
         return { id: +id, name: name };
     }
 }
